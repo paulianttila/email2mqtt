@@ -4,7 +4,7 @@ Simple email client to monitor new emails and forward them to MQTT broker.
 
 ## Environament variables
 
-| Variable               | Default     | Descrition                                                                                                     |
+| **Variable**           | **Default** | **Descrition**                                                                                                 |
 |------------------------|-------------|----------------------------------------------------------------------------------------------------------------|
 | APP_NAME               | email2mqtt  | Name of the app.                                                                                               |
 | LOG_LEVEL              | INFO        | Logging level: CRITICAL, ERROR, WARNING, INFO or DEBUG                                                         |
@@ -19,7 +19,7 @@ Simple email client to monitor new emails and forward them to MQTT broker.
 | MQTT_TLS_CERTFILE      | None        | String pointing to the PEM encoded client certificate.                                                         |
 | MQTT_TLS_KEYFILE       | None        | String pointing to the PEM encoded client private key.                                                         |
 | MQTT_TLS_INSECURE      | False       | Configure verification of the server hostname in the server certificate.                                       |
-| MQTT_TOPIC_PREFIX      | <APP_NAME>/ |                                                                                                                |
+| MQTT_TOPIC_PREFIX      | <APP_NAME>/ | MQTT topic prefix.                                                                                             |
 | EMAIL_SERVER           | None        | Email server URL to connect.                                                                                   |
 | EMAIL_USERNAME         | None        | Email server username used for authentication.                                                                 |
 | EMAIL_PASSWORD         | None        | Email server password used for authentication.                                                                 |
