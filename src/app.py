@@ -3,6 +3,8 @@ from mqtt_framework import Config
 from mqtt_framework.callbacks import Callbacks
 from mqtt_framework.app import TriggerSource
 
+from prometheus_client import Counter
+
 from datetime import datetime
 import os
 import threading
@@ -37,6 +39,8 @@ class MyApp:
         self.add_url_rule = callbacks.add_url_rule
         self.publish_value_to_mqtt_topic = callbacks.publish_value_to_mqtt_topic
         self.subscribe_to_mqtt_topic = callbacks.subscribe_to_mqtt_topic
+        self.received_emails_metric = Counter('received_emails', '', registry=self.metrics_registry)
+        self.received_emails_errors_metric = Counter('received_emails_errors', '', registry=self.metrics_registry)
 
         self.login_done = False
         self.email_reader = None
@@ -134,6 +138,7 @@ class MyApp:
                     messages = self.imap.search(u'UNSEEN')
                     self.logger.debug('received %d email(s)', len(messages))
                     for uid, message_data in self.imap.fetch(messages, "RFC822").items():
+                        self.received_emails_metric.inc()
                         email_message = email.message_from_bytes(message_data[b"RFC822"])
                         self.logger.info('processing email %s from %s', uid, email_message['from'])
                         self.process_email(email_message)
@@ -162,6 +167,7 @@ class MyApp:
 
                 self.receive_emails()
             except Exception as e:
+                self.received_emails_errors_metric.inc()
                 self.logger.error('Error occured: %s' % e)
                 self.logger.debug('Error occured: %s' % e, exc_info=True)
                 self.imap = None
