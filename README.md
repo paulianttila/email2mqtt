@@ -4,28 +4,17 @@ Simple email client to monitor new emails and forward them to MQTT broker.
 
 ## Environament variables
 
-| **Variable**           | **Default** | **Descrition**                                                                                                 |
-|------------------------|-------------|----------------------------------------------------------------------------------------------------------------|
-| APP_NAME               | email2mqtt  | Name of the app.                                                                                               |
-| LOG_LEVEL              | INFO        | Logging level: CRITICAL, ERROR, WARNING, INFO or DEBUG                                                         |
-| UPDATE_INTERVAL        | 60          | Update interval in seconds.                                                                                    |
-| DELAY_BEFORE_FIRST_TRY | 5           | Delay before first try in seconds.                                                                             |
-| MQTT_CLIENT_ID         | <APP_NAME>  | the unique client id string used when connecting to the broker.                                                |
-| MQTT_BROKER_URL        | 127.0.0.1   | MQTT broker URL that should be used for the connection.                                                        |
-| MQTT_BROKER_PORT       | 1883        | MQTT broker port that should be used for the connection.                                                       |
-| MQTT_USERNAME          | None        | MQTT broker username used for authentication. If none is provided authentication is disabled.                  |
-| MQTT_PASSWORD          | None        | MQTT broker password used for authentication.                                                                  |
-| MQTT_TLS_CA_CERTS      | None        | A string path to the Certificate Authority certificate files that are to be treated as trusted by this client. |
-| MQTT_TLS_CERTFILE      | None        | String pointing to the PEM encoded client certificate.                                                         |
-| MQTT_TLS_KEYFILE       | None        | String pointing to the PEM encoded client private key.                                                         |
-| MQTT_TLS_INSECURE      | False       | Configure verification of the server hostname in the server certificate.                                       |
-| MQTT_TOPIC_PREFIX      | <APP_NAME>/ | MQTT topic prefix.                                                                                             |
-| EMAIL_SERVER           | None        | Email server URL to connect.                                                                                   |
-| EMAIL_USERNAME         | None        | Email server username used for authentication.                                                                 |
-| EMAIL_PASSWORD         | None        | Email server password used for authentication.                                                                 |
-| EMAIL_FOLDER           | INBOX       | Email server folder name to monitor.                                                                           |
-| EMAIL_IDLE_TIMEOUT     | 300         | Idle timeout for email server connection.                                                                      |
-| EMAIL_SKIP_UNREAD      | True        | Skip unreaded emails during connection.                                                                        |
+See commonn environment variables from [MQTT-Framework](https://github.com/paulianttila/MQTT-Framework).
+
+| **Variable**               | **Default** | **Descrition**                                                                                                 |
+|----------------------------|-------------|----------------------------------------------------------------------------------------------------------------|
+| CFG_APP_NAME               | email2mqtt  | Name of the app.                                                                                               |
+| CFG_EMAIL_SERVER           | None        | Email server URL to connect.                                                                                   |
+| CFG_EMAIL_USERNAME         | None        | Email server username used for authentication.                                                                 |
+| CFG_EMAIL_PASSWORD         | None        | Email server password used for authentication.                                                                 |
+| CFG_EMAIL_FOLDER           | INBOX       | Email server folder name to monitor.                                                                           |
+| CFG_EMAIL_IDLE_TIMEOUT     | 300         | Idle timeout for email server connection.                                                                      |
+| CFG_EMAIL_SKIP_UNREAD      | True        | Skip unreaded emails during connection.                                                                        |
 
 ## Example docker-compose.yaml
 
