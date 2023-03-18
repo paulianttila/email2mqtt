@@ -53,7 +53,7 @@ class MyApp:
         self.imap = None
 
     def get_version(self) -> str:
-        return "1.0.0"
+        return "2.0.1"
 
     def stop(self) -> None:
         self.logger.debug("Stopping...")
@@ -105,9 +105,7 @@ class MyApp:
         self.logger.info(
             "Logging in to IMAP server by user %s", self.config["EMAIL_USERNAME"]
         )
-        self.imap.login(
-            self.config["EMAIL_USERNAME"], self.config["EMAIL_PASSWORD"]
-        )
+        self.imap.login(self.config["EMAIL_USERNAME"], self.config["EMAIL_PASSWORD"])
         self.logger.info("Selecting IMAP folder - %s", self.config["EMAIL_FOLDER"])
         self.imap.select_folder(self.config["EMAIL_FOLDER"])
         if bool(self.config["EMAIL_SKIP_UNREAD"]):
@@ -138,16 +136,10 @@ class MyApp:
     def check_new_emails(self) -> None:
         messages = self.imap.search("UNSEEN")
         self.logger.debug(f"Received {len(messages)} email(s)")
-        for uid, message_data in self.imap.fetch(
-            messages, "RFC822"
-        ).items():
+        for uid, message_data in self.imap.fetch(messages, "RFC822").items():
             self.received_emails_metric.inc()
-            email_message = email.message_from_bytes(
-                message_data[b"RFC822"]
-            )
-            self.logger.info(
-                "Processing email %s from %s", uid, email_message["from"]
-            )
+            email_message = email.message_from_bytes(message_data[b"RFC822"])
+            self.logger.info("Processing email %s from %s", uid, email_message["from"])
             self.process_email(email_message)
 
     def process_email(self, mail: Message) -> None:
@@ -175,7 +167,7 @@ class MyApp:
         timestamp = email.utils.parsedate_to_datetime(mail["date"])
         return str(
             timestamp.replace(microsecond=0)
-            .astimezone(pytz.timezone(os.environ['TZ']))
+            .astimezone(pytz.timezone(os.environ["TZ"]))
             .isoformat()
         )
 
@@ -213,5 +205,6 @@ class MyApp:
         charset = mail.get_content_charset()
         return body, charset
 
+
 if __name__ == "__main__":
-    Framework().start(MyApp(), MyConfig(), blocked=True)
+    Framework().run(MyApp(), MyConfig())
