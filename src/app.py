@@ -115,11 +115,11 @@ class MyApp:
 
     def wait_emails(self) -> None:
         idle_timeout = int(self.config["EMAIL_IDLE_TIMEOUT"])
-        while not self.exit:
-            try:
+        try:
+            while not self.exit:
                 self.wait_emails_with_timeout(idle_timeout)
-            finally:
-                self.imap.idle_done()
+        finally:
+            self.imap.idle_done()
 
     def wait_emails_with_timeout(self, idle_timeout):
         self.logger.debug(f"Waiting new emails {idle_timeout} sec")
