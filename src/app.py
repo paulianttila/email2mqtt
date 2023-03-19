@@ -125,13 +125,14 @@ class MyApp:
         self.logger.debug(f"Waiting new emails {idle_timeout} sec")
         self.imap.idle()
         result = self.imap.idle_check(timeout=idle_timeout)
+        self.logger.debug("Waiting end")
+        self.imap.idle_done()
+        self.imap.noop()
+
         if len(result) > 0:
             self.check_new_emails()
         else:
             self.logger.debug("No new messages seen")
-        self.logger.debug("Waiting end")
-        self.imap.idle_done()
-        self.imap.noop()
 
     def check_new_emails(self) -> None:
         messages = self.imap.search("UNSEEN")
