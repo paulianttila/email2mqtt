@@ -77,20 +77,19 @@ class MyApp:
         self.logger.debug(f"Update called, trigger_source={trigger_source}")
         if self.email_reader is None:
             self.logger.info("Start email client")
-            self.email_reader = threading.Thread(target=self.start, daemon=True)
+            self.email_reader = threading.Thread(target=self.email_reading, daemon=True)
             self.email_reader.start()
 
-    def start(self) -> None:
+    def email_reading(self) -> None:
         while not self.exit:
             try:
-                if self.imap is None:
-                    self.login()
+                self.login()
                 self.wait_emails()
             except Exception as e:
                 self.received_emails_errors_metric.inc()
                 self.logger.error(f"Error occured: {e}")
                 self.logger.debug(f"Error occured: {e}", exc_info=True)
-                self.imap = None
+                self.login_done = False
                 time.sleep(10)
             time.sleep(1)
 
@@ -100,12 +99,18 @@ class MyApp:
             self.logger.debug("Email reader stopped")
 
     def login(self) -> None:
+        if self.login_done is True:
+            self.logger.debug("Already logged in")
+            return
+
         self.logger.info("Connecting to IMAP server %s", self.config["EMAIL_SERVER"])
-        self.imap = IMAPClient(self.config["EMAIL_SERVER"], use_uid=True, ssl=True)
+        if self.imap is None:
+            self.imap = IMAPClient(self.config["EMAIL_SERVER"], use_uid=True, ssl=True)
         self.logger.info(
             "Logging in to IMAP server by user %s", self.config["EMAIL_USERNAME"]
         )
         self.imap.login(self.config["EMAIL_USERNAME"], self.config["EMAIL_PASSWORD"])
+        self.login_done = True
         self.logger.info("Selecting IMAP folder - %s", self.config["EMAIL_FOLDER"])
         self.imap.select_folder(self.config["EMAIL_FOLDER"])
         if bool(self.config["EMAIL_SKIP_UNREAD"]):
@@ -115,24 +120,24 @@ class MyApp:
 
     def wait_emails(self) -> None:
         idle_timeout = int(self.config["EMAIL_IDLE_TIMEOUT"])
-        try:
-            while not self.exit:
-                self.wait_emails_with_timeout(idle_timeout)
-        finally:
-            self.imap.idle_done()
+        while not self.exit:
+            self.wait_emails_with_timeout(idle_timeout)
 
     def wait_emails_with_timeout(self, idle_timeout):
         self.logger.debug(f"Waiting new emails {idle_timeout} sec")
         self.imap.idle()
-        result = self.imap.idle_check(timeout=idle_timeout)
-        self.logger.debug("Waiting end")
-        self.imap.idle_done()
-        self.imap.noop()
-
-        if len(result) > 0:
-            self.check_new_emails()
-        else:
-            self.logger.debug("No new messages seen")
+        try:
+            result = self.imap.idle_check(timeout=idle_timeout)
+            self.logger.debug("Waiting end")
+            self.imap.idle_done()
+            if result:
+                self.check_new_emails()
+            else:
+                self.logger.debug("No new messages seen")
+                self.imap.noop()
+        except Exception:
+            self.imap.idle_done()
+            raise
 
     def check_new_emails(self) -> None:
         messages = self.imap.search("UNSEEN")
@@ -140,29 +145,32 @@ class MyApp:
         for uid, message_data in self.imap.fetch(messages, "RFC822").items():
             self.received_emails_metric.inc()
             email_message = email.message_from_bytes(message_data[b"RFC822"])
-            self.logger.info("Processing email %s from %s", uid, email_message["from"])
-            self.process_email(email_message)
+            self.process_email(uid, email_message)
 
-    def process_email(self, mail: Message) -> None:
-        from_who = mail["from"]
-        subject = mail["subject"]
-        timestamp = self.get_email_date_as_str(mail)
-        message = self.get_message(mail)
-        now = datetime.now().replace(microsecond=0).isoformat()
+    def process_email(self, uid: str, mail: Message) -> None:
+        try:
+            self.logger.info("Processing email %s from %s", uid, mail["from"])
+            from_who = mail["from"]
+            subject = mail["subject"]
+            timestamp = self.get_email_date_as_str(mail)
+            message = self.get_message(mail)
+            now = datetime.now().replace(microsecond=0).isoformat()
 
-        self.logger.debug("%s: %s - %s - %s", timestamp, from_who, subject, message)
+            self.logger.debug("%s: %s - %s - %s", timestamp, from_who, subject, message)
 
-        msg = {
-            "from": from_who,
-            "subject": subject,
-            "date": timestamp,
-            "received": now,
-            "message": message,
-        }
+            msg = {
+                "from": from_who,
+                "subject": subject,
+                "date": timestamp,
+                "received": now,
+                "message": message,
+            }
 
-        data = json.dumps(msg)
-        self.logger.info(f"{data}")
-        self.publish_value_to_mqtt_topic("message", data, True)
+            data = json.dumps(msg)
+            self.logger.info(f"{data}")
+            self.publish_value_to_mqtt_topic("message", data, True)
+        except Exception as e:
+            self.logger.error(f"Error occured while processing email {uid}: {e}")
 
     def get_email_date_as_str(self, mail: Message) -> str:
         timestamp = email.utils.parsedate_to_datetime(mail["date"])
