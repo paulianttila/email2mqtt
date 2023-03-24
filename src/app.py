@@ -1,3 +1,4 @@
+import contextlib
 from email.message import Message
 import os
 from mqtt_framework import Framework
@@ -102,10 +103,12 @@ class MyApp:
         if self.login_done is True:
             self.logger.debug("Already logged in")
             return
+        if self.imap is not None:
+            with contextlib.suppress(Exception):
+                self.imap.logout()
 
         self.logger.info("Connecting to IMAP server %s", self.config["EMAIL_SERVER"])
-        if self.imap is None:
-            self.imap = IMAPClient(self.config["EMAIL_SERVER"], use_uid=True, ssl=True)
+        self.imap = IMAPClient(self.config["EMAIL_SERVER"], use_uid=True, ssl=True)
         self.logger.info(
             "Logging in to IMAP server by user %s", self.config["EMAIL_USERNAME"]
         )
