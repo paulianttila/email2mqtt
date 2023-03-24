@@ -59,10 +59,6 @@ class MyApp:
     def stop(self) -> None:
         self.logger.debug("Stopping...")
         self.exit = True
-        if self.email_reader:
-            self.email_reader.stop()
-            if self.email_reader.is_alive():
-                self.email_reader.join()
         self.logger.debug("Exit")
 
     def subscribe_to_mqtt_topics(self) -> None:
