@@ -1,6 +1,5 @@
 import contextlib
 from email.message import Message
-import os
 from mqtt_framework import Framework
 from mqtt_framework import Config
 from mqtt_framework.callbacks import Callbacks
@@ -31,6 +30,7 @@ class MyConfig(Config):
     EMAIL_FOLDER = "INBOX"
     EMAIL_IDLE_TIMEOUT = 300
     EMAIL_SKIP_UNREAD = True
+    TZ = "Europe/Helsinki"
 
 
 class MyApp:
@@ -54,7 +54,7 @@ class MyApp:
         self.imap = None
 
     def get_version(self) -> str:
-        return "2.0.5"
+        return "2.0.6"
 
     def stop(self) -> None:
         self.logger.debug("Stopping...")
@@ -179,7 +179,7 @@ class MyApp:
         timestamp = email.utils.parsedate_to_datetime(mail["date"])
         return str(
             timestamp.replace(microsecond=0)
-            .astimezone(pytz.timezone(os.environ["TZ"]))
+            .astimezone(pytz.timezone(self.config["TZ"]))
             .isoformat()
         )
 
