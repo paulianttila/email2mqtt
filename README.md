@@ -6,15 +6,16 @@ Simple email client to monitor new emails and forward them to MQTT broker.
 
 See commonn environment variables from [MQTT-Framework](https://github.com/paulianttila/MQTT-Framework).
 
-| **Variable**               | **Default** | **Descrition**                                                                                                 |
-|----------------------------|-------------|----------------------------------------------------------------------------------------------------------------|
-| CFG_APP_NAME               | email2mqtt  | Name of the app.                                                                                               |
-| CFG_EMAIL_SERVER           | None        | Email server URL to connect.                                                                                   |
-| CFG_EMAIL_USERNAME         | None        | Email server username used for authentication.                                                                 |
-| CFG_EMAIL_PASSWORD         | None        | Email server password used for authentication.                                                                 |
-| CFG_EMAIL_FOLDER           | INBOX       | Email server folder name to monitor.                                                                           |
-| CFG_EMAIL_IDLE_TIMEOUT     | 300         | Idle timeout for email server connection.                                                                      |
-| CFG_EMAIL_SKIP_UNREAD      | True        | Skip unreaded emails during connection.                                                                        |
+| **Variable**               | **Default**     | **Descrition**                                                                                                 |
+|----------------------------|-----------------|----------------------------------------------------------------------------------------------------------------|
+| CFG_APP_NAME               | email2mqtt      | Name of the app.                                                                                               |
+| CFG_EMAIL_SERVER           | None            | Email server URL to connect.                                                                                   |
+| CFG_EMAIL_USERNAME         | None            | Email server username used for authentication.                                                                 |
+| CFG_EMAIL_PASSWORD         | None            | Email server password used for authentication.                                                                 |
+| CFG_EMAIL_FOLDER           | INBOX           | Email server folder name to monitor.                                                                           |
+| CFG_EMAIL_IDLE_TIMEOUT     | 300             | Idle timeout for email server connection.                                                                      |
+| CFG_EMAIL_SKIP_UNREAD      | True            | Skip unreaded emails during connection.                                                                        |
+| CFG_TZ                     | Europe/Helsinki | Used timezone.                                                                                                 |
 
 ## Example docker-compose.yaml
 
