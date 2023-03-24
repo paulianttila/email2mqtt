@@ -54,7 +54,7 @@ class MyApp:
         self.imap = None
 
     def get_version(self) -> str:
-        return "2.0.4"
+        return "2.0.5"
 
     def stop(self) -> None:
         self.logger.debug("Stopping...")
